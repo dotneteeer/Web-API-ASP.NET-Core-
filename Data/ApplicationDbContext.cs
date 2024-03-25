@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Reflection;
 using WebApplication1.Models;
 
@@ -16,17 +17,17 @@ namespace WebApplication1.Data
         /// <summary>
         /// GET
         /// </summary>/
-        public List<UserModel> GetAllUsers()
+        public async Task<IEnumerable<UserModel>>GetAllUsers()
         {
-            return Users.ToList();
+            return await Users.ToListAsync();
         }
 
-        public UserModel GetUserById(int id)
+        public async Task<UserModel> GetUserById(int id)
         {
             return Users.ToList().Find(user => user.id == id);
         }
         
-        public List<UserModel> GetUserByProperty(string propertyName, object propertyValue)
+        public async Task<IEnumerable<UserModel>> GetUsersByProperty(string propertyName, object propertyValue)
         {
             PropertyInfo property = typeof(UserModel).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             if (property == null)
@@ -34,29 +35,45 @@ namespace WebApplication1.Data
                 throw new ArgumentException($"Property named '{propertyName}' is not found in User model.");
             }
 
-            return Users.ToList().FindAll(user =>
+            return  Users.ToList().FindAll(user =>
                 property.GetValue(user)?.Equals(propertyValue) == true);
+
         }
 
         /// <summary>
         /// OTHER
         /// </summary>/
 
-        public void UpdateUserById(int id, UserModel newUser)
+        public async Task UpdateUserById(int id, UserModel newUser)
         {
-             int newUserIndex=Users.ToList().IndexOf(this.GetUserById(id));
+             int newUserIndex=Users.ToList().IndexOf(await this.GetUserById(id));
              Users.ToList()[newUserIndex] = newUser;
              this.SaveChangesAsync();
 
         }
 
 
-        public void DeleteUserById(int id)
+        public async Task DeleteUserById(int id)
         {
-            Users.Remove(this.GetUserById(id));
+            Users.Remove(await this.GetUserById(id));
             this.SaveChangesAsync();
         }
-        
+
+        public async Task Insert(UserModel newUser)
+        {
+            Users.Add(newUser);
+            this.SaveChangesAsync();
+        }
+
+        public async Task InsertSomeValues(IEnumerable<UserModel> collection)
+        {
+            foreach (var user in collection)
+            {
+                Users.Add(user);
+            }
+
+            this.SaveChangesAsync();
+        }
     }
 }
     

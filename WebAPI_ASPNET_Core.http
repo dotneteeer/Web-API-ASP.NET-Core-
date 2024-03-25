@@ -2,5 +2,5 @@
 
 GET {{WebAPI_ASPNET_Core_HostAddress}}/weatherforecast/
 Accept: application/json
-
+GET {{WebAPI_ASPNET_Core_HostAddress}}/api/HttpGet/get-all-users
 ###
