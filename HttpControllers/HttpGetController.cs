@@ -1,18 +1,19 @@
-
-using WebApplication1.Models;
+using Microsoft.AspNetCore.Mvc;
+using WebAPI_ASPNET_Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI_ASPNET_Core.HttpControllers;
 
 [ApiController]
-[Route("api/{controller}")]
+[Route("api/[controller]")]
 public class HttpGetController:ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    
-    
-    public HttpGetController(ApplicationDbContext context)
+    public readonly IConfiguration _configuration; 
+    public HttpGetController(ApplicationDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
     }
         
     [HttpGet("get-all-users")]
@@ -42,8 +43,8 @@ public class HttpGetController:ControllerBase
 
     }
     
-    [HttpGet("get-product-by-property/{propertyName}&{propertyValue}")]
-    public async Task<IActionResult> GetUsersByProperty(string propertyName, object propertyValue)
+    [HttpGet("get-product-by-property")]
+    public async Task<IActionResult> GetUsersByProperty([FromQuery]string propertyName, [FromQuery]string propertyValue)
     {
         try
         {
@@ -57,3 +58,4 @@ public class HttpGetController:ControllerBase
     }
     
 }
+

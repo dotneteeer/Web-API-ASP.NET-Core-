@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.Models
+namespace WebAPI_ASPNET_Core.Models
 {
     public class UserModel
     {

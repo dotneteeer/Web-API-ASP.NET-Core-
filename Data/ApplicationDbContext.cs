@@ -1,9 +1,12 @@
-﻿
-using System.Collections;
+﻿using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
-using WebApplication1.Models;
+using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlClient;
+using WebAPI_ASPNET_Core.Models;
 
-namespace WebApplication1.Data
+namespace WebAPI_ASPNET_Core.Data
 {
     public class ApplicationDbContext:DbContext
     {
@@ -11,7 +14,7 @@ namespace WebApplication1.Data
         {
             Database.EnsureCreated();
         }
-        public DbSet<UserModel> Users { get; set; }
+        public  DbSet<UserModel> Users { get; set; }
         
         
         /// <summary>
@@ -27,16 +30,12 @@ namespace WebApplication1.Data
             return Users.ToList().Find(user => user.id == id);
         }
         
-        public async Task<IEnumerable<UserModel>> GetUsersByProperty(string propertyName, object propertyValue)
+        public async Task<IEnumerable<UserModel>> GetUsersByProperty(string propertyName, string propertyValue)
         {
-            PropertyInfo property = typeof(UserModel).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (property == null)
-            {
-                throw new ArgumentException($"Property named '{propertyName}' is not found in User model.");
-            }
+            var sqlQuery = FormattableStringFactory.Create($"SELECT * FROM `users` WHERE `{propertyName}` LIKE '{propertyValue}'");
+            return Database.SqlQuery<UserModel>(sqlQuery).ToList();
 
-            return  Users.ToList().FindAll(user =>
-                property.GetValue(user)?.Equals(propertyValue) == true);
+            
 
         }
 
