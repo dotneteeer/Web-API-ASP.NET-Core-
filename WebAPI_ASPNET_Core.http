@@ -1,6 +1,0 @@
-@WebAPI_ASPNET_Core_HostAddress = http://localhost:5004
-
-GET {{WebAPI_ASPNET_Core_HostAddress}}/weatherforecast/
-Accept: application/json
-GET {{WebAPI_ASPNET_Core_HostAddress}}/api/HttpGet/get-all-users
-###

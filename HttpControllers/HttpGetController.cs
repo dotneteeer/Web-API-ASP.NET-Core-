@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
-using WebAPI_ASPNET_Core.Models;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace WebAPI_ASPNET_Core.HttpControllers;
 
@@ -9,11 +7,10 @@ namespace WebAPI_ASPNET_Core.HttpControllers;
 public class HttpGetController:ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    public readonly IConfiguration _configuration; 
-    public HttpGetController(ApplicationDbContext context, IConfiguration configuration)
+    
+    public HttpGetController(ApplicationDbContext context)
     {
         _context = context;
-        _configuration = configuration;
     }
         
     [HttpGet("get-all-users")]
@@ -24,27 +21,31 @@ public class HttpGetController:ControllerBase
         if (users.Count() != 0)
         {
             return Ok(users);
+            
         }
 
         return NoContent();
     }
     
-    [HttpGet("get-user-by-id/{id}")]
+    [HttpGet("get-user-by-id/{id:int:min(1)}")]
     public async Task<IActionResult> GetUserById(int id)
     {
         var user = await _context.GetUserById(id);
-        if (user != null)
+        if (user is UserModel)
         {
             return Ok(user);
         }
 
-        return NoContent();
+        return BadRequest( new NullReferenceException($"User({{\"id\":{id}}}) is not found").Message);
+
+
 
 
     }
     
-    [HttpGet("get-product-by-property")]
-    public async Task<IActionResult> GetUsersByProperty([FromQuery]string propertyName, [FromQuery]string propertyValue)
+    [HttpGet("get-users-by-property/{propertyName}/{propertyValue}")]
+    [HttpGet("get-users-by-property/{propertyName}&{propertyValue}")]
+    public async Task<IActionResult> GetUsersByProperty(string propertyName, string propertyValue)
     {
         try
         {

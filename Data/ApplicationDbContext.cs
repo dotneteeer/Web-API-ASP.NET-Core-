@@ -22,21 +22,40 @@ namespace WebAPI_ASPNET_Core.Data
         /// </summary>/
         public async Task<IEnumerable<UserModel>>GetAllUsers()
         {
-            return await Users.ToListAsync();
+            return Users.ToList().OrderBy(user => user.id);;
         }
 
         public async Task<UserModel> GetUserById(int id)
         {
-            return Users.ToList().Find(user => user.id == id);
+            var user = Users.ToList().FirstOrDefault(user => user.id == id);
+            if (user != null)
+            {
+                return user;
+            }
+
+            return default;
+            //throw new NullReferenceException($"User({{\"id\":{id}}}) is not found");
         }
         
         public async Task<IEnumerable<UserModel>> GetUsersByProperty(string propertyName, string propertyValue)
         {
-            var sqlQuery = FormattableStringFactory.Create($"SELECT * FROM `users` WHERE `{propertyName}` LIKE '{propertyValue}'");
-            return Database.SqlQuery<UserModel>(sqlQuery).ToList();
+            try
+            {
+                var sqlQuery =
+                    FormattableStringFactory.Create(
+                        $"SELECT * FROM `users` WHERE `{propertyName}` LIKE '{propertyValue}'");
+                return Database.SqlQuery<UserModel>(sqlQuery).ToList();
+            }
+            catch (MySqlConnector.MySqlException e)
+            {
+                if (e.Number == 1054)
+                {
+                    throw new ArgumentException($"Column({{\"propertyName\":\"{propertyName}\"}}) name is incorrect");
+                }
+                
 
-            
-
+                throw e;
+            }
         }
 
         /// <summary>
@@ -47,31 +66,71 @@ namespace WebAPI_ASPNET_Core.Data
         {
              int newUserIndex=Users.ToList().IndexOf(await this.GetUserById(id));
              Users.ToList()[newUserIndex] = newUser;
-             this.SaveChangesAsync();
+             await SaveChangesAsync();
 
         }
 
 
-        public async Task DeleteUserById(int id)
+        public async Task<bool> DeleteUserById(int id)
         {
-            Users.Remove(await this.GetUserById(id));
-            this.SaveChangesAsync();
+
+            var user = await GetUserById(id);
+            if (user is UserModel)
+            {
+                Users.Remove(user);
+                await SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public async Task<int> DeleteUserByIdRange(int startId, int endId)
+        {
+            int counter = 0;
+            for (int i = startId; i <= endId; i++)
+            {
+                if (await DeleteUserById(i))
+                {
+                    counter++;
+                }
+                
+            }
+
+            return counter;
+        }
+
+        public async Task<int> DeleteUsersByProperty(string propertyName, string propertyValue)
+        {
+            
+            var usersByProperty = await GetUsersByProperty(propertyName, propertyValue);
+            if (usersByProperty.Count() != 0)
+            {
+                foreach (var user in usersByProperty)
+                {
+                    Users.Remove(user);
+                }
+            }
+
+            await SaveChangesAsync();
+            return usersByProperty.Count();//return users deleted quantity
         }
 
         public async Task Insert(UserModel newUser)
         {
-            Users.Add(newUser);
-            this.SaveChangesAsync();
+            await Users.AddAsync(newUser);
+            await SaveChangesAsync();
         }
 
         public async Task InsertSomeValues(IEnumerable<UserModel> collection)
         {
             foreach (var user in collection)
             {
-                Users.Add(user);
+                await Users.AddAsync(user);
             }
 
-            this.SaveChangesAsync();
+            await SaveChangesAsync();
         }
     }
 }
