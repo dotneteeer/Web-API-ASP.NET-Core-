@@ -1,6 +1,32 @@
 namespace WebAPI_ASPNET_Core.HttpControllers;
 
-public class HttpPutController
+[ApiController]
+[Route("api/[controller]")]
+public class HttpPutController:ControllerBase
 {
+    private readonly ApplicationDbContext _context;
+    
+    public HttpPutController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+    
+    [HttpPut("update-user-by-id/{id:int:min(1)}")]
+    public async Task<IActionResult> UpdateUserById(int id, [FromBody]UserModel newUser)
+    {
+        try
+        {
+            if (await _context.UpdateUserById(id, newUser))
+            {
+                return Ok($"User({{\"id\":{id}, {newUser}}}) updated");
+            }
+
+            return BadRequest(new NullReferenceException($"User({{\"id\":{id}, {newUser}}}) is not found").Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
     
 }

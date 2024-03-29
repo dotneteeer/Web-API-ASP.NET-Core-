@@ -17,9 +17,6 @@ namespace WebAPI_ASPNET_Core.Data
         public  DbSet<UserModel> Users { get; set; }
         
         
-        /// <summary>
-        /// GET
-        /// </summary>/
         public async Task<IEnumerable<UserModel>>GetAllUsers()
         {
             return Users.ToList().OrderBy(user => user.id);;
@@ -58,16 +55,28 @@ namespace WebAPI_ASPNET_Core.Data
             }
         }
 
-        /// <summary>
-        /// OTHER
-        /// </summary>/
 
-        public async Task UpdateUserById(int id, UserModel newUser)
+        public async Task<bool> UpdateUserById(int id, UserModel newUser)
         {
-             int newUserIndex=Users.ToList().IndexOf(await this.GetUserById(id));
-             Users.ToList()[newUserIndex] = newUser;
-             await SaveChangesAsync();
+            var user = await GetUserById(id);
+            if (user is UserModel)
+            {
+                try
+                {
+                    var sqlQuery =
+                        FormattableStringFactory.Create(
+                            $"UPDATE `users` SET `name` = '{newUser.name}', `age` = '{newUser.age}' WHERE `users`.`id` = {id};");
+                    Database.SqlQuery<UserModel>(sqlQuery);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                
+            }
 
+            return false;
         }
 
 
