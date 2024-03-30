@@ -1,7 +1,4 @@
-using WebAPI_ASPNET_Core.HttpControllers;
- using Microsoft.AspNetCore.Mvc;
- using Microsoft.EntityFrameworkCore;
- using WebAPI_ASPNET_Core.Data;
+//var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +7,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin",
+        builder => builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+/*builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy  =>
+        {
+            policy.WithOrigins("127.0.0.1:5500",
+                "file:///C:/Users/USER/OneDrive/Desktop/js/own_asp.net_core_api/index.html")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});*/
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -36,17 +51,13 @@ app.UseHttpsRedirection();
 
 
 app.UseRouting();
+//app.UseCors(MyAllowSpecificOrigins);
+app.UseCors("AllowAnyOrigin");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
 app.UseAuthorization();
-
-
-
-
-
-
 
 
 

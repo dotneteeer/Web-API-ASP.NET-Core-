@@ -63,10 +63,9 @@ namespace WebAPI_ASPNET_Core.Data
             {
                 try
                 {
-                    var sqlQuery =
-                        FormattableStringFactory.Create(
-                            $"UPDATE `users` SET `name` = '{newUser.name}', `age` = '{newUser.age}' WHERE `users`.`id` = {id};");
-                    Database.SqlQuery<UserModel>(sqlQuery);
+                    user.name = newUser.name;
+                    user.age = newUser.age;
+                    await SaveChangesAsync();
                     return true;
                 }
                 catch (Exception e)
