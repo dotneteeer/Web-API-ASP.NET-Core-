@@ -1,7 +1,5 @@
 
 
-using Microsoft.AspNetCore.Cors;
-
 namespace WebAPI_ASPNET_Core.HttpControllers;
 
 [ApiController]
