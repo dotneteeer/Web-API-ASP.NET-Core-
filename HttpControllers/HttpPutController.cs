@@ -18,7 +18,7 @@ public class HttpPutController:ControllerBase
         {
             if (await _context.UpdateUserById(id, newUser))
             {
-                return Ok($"User({{\"id\":{id}, {newUser}}}) updated");
+                return Ok($"User({{\"id\":{id}, \"Name\":\"{newUser.name}\",\"age\":{newUser.age}}}) updated");
             }
 
             return BadRequest(new NullReferenceException($"User({{\"id\":{id}, {newUser}}}) is not found").Message);
