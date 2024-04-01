@@ -41,7 +41,7 @@ namespace WebAPI_ASPNET_Core.Data
                 var sqlQuery =
                     FormattableStringFactory.Create(
                         $"SELECT * FROM `users` WHERE `{propertyName}` LIKE '{propertyValue}'");
-                return Database.SqlQuery<UserModel>(sqlQuery).ToList();
+                return Database.SqlQuery<UserModel>(sqlQuery).ToList().OrderBy(user=>user.id);
             }
             catch (MySqlConnector.MySqlException e)
             {
