@@ -96,15 +96,10 @@ namespace WebAPI_ASPNET_Core.Data
 
         public async Task<int> DeleteUserByIdRange(int startId, int endId)
         {
-            int counter = 0;
-            for (int i = startId; i <= endId; i++)
-            {
-                if (await DeleteUserById(i))
-                {
-                    counter++;
-                }
-                
-            }
+            var usersToDelete = Users.Where(u => u.id >= startId && u.id <= endId);
+            int counter = usersToDelete.Count();
+            Users.RemoveRange(usersToDelete);
+            await SaveChangesAsync();
 
             return counter;
         }
