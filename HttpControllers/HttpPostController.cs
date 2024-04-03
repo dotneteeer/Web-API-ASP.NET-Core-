@@ -18,7 +18,7 @@ public class HttpPostController:ControllerBase
     {
         try
         {
-            await _context.Insert(new UserModel(){name = user.name, age = user.age});
+            await _context.Insert(new UserModel{name = user.name, age = user.age});
             return Ok($"User({user}) added");
         }
         catch (Exception e)

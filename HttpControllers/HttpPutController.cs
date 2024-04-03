@@ -16,7 +16,7 @@ public class HttpPutController:ControllerBase
     {
         try
         {
-            if (await _context.UpdateUserById(id, newUser))
+            if (await _context.UpdateUserById(id, new UserModel{name=newUser.name, age = newUser.age}))
             {
                 return Ok($"User({{\"id\":{id}, \"Name\":\"{newUser.name}\",\"age\":{newUser.age}}}) updated");
             }
